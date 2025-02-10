@@ -1,4 +1,4 @@
-# This is formatted to reveal the structure of the JSON data files.
+""" This is formatted to reveal the structure of the JSON data files. """
 
 tiny_data = \
 {"events": [

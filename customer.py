@@ -35,6 +35,9 @@ class Customer:
         self._id = cid
         self._phone_lines = []
 
+    def __str__(self) -> str:
+        return f"Customer {self.get_id()} - Lines: {self.get_phone_numbers()}"
+
     def new_month(self, month: int, year: int) -> None:
         """ Advance to a new month (specified by <month> and <year>) in the
         contracts for each phone line that this customer owns.

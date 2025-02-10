@@ -126,15 +126,14 @@ def process_event_history(log: dict[str, list[dict]],
     # TODO: Implement this method. We are giving you the first few lines of code
     billing_date = datetime.datetime.strptime(log['events'][0]['time'],
                                               "%Y-%m-%d %H:%M:%S")
-    billing_month = billing_date.month
+    # billing_month = billing_date.month
     # start recording the bills from this date
     # Note: uncomment the following lines when you're ready to implement this
-    #
-    # new_month(customer_list, billing_date.month, billing_date.year)
-    #
-    # for event_data in log['events']:
-    #  
-    # ...
+    
+    new_month(customer_list, billing_date.month, billing_date.year)
+    
+    for event_data in log['events']:
+        print(event_data)
 
 
 if __name__ == '__main__':
