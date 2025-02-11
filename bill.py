@@ -29,17 +29,17 @@ class Bill:
 
     === Public Attributes ===
     billed_min:
-         number of billable minutes used in the month associated with this bill.
+        number of billable minutes used in the month associated with this bill.
     free_min:
-         number of non-billable minutes used in the month associated with this
-         bill.
+        number of non-billable minutes used in the month associated with this
+        bill.
     min_rate:
-         cost for one minute of calling
+        cost for one minute of calling
     fixed_cost:
-         fixed costs for the bill (e.g., fixed monthly cost of the
-         contract, term deposits, etc.)
+        fixed costs for the bill (e.g., fixed monthly cost of the
+        contract, term deposits, etc.)
     type:
-         type of contract
+        type of contract
 
     === Representation Invariants ===
     -   billed_min >= 0

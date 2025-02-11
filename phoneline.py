@@ -23,15 +23,15 @@ class PhoneLine:
 
     === Public Attributes ===
     number:
-         phone number
+        phone number
     contract:
-         current contract for this phone, represented by a Contract instance
+        current contract for this phone, represented by a Contract instance
     bills:
-         dictionary containing all the bills for this phoneline
-         each key is a (month, year) tuple and the corresponding value is
-         the Bill object for that month+year date.
+        dictionary containing all the bills for this phoneline
+        each key is a (month, year) tuple and the corresponding value is
+        the Bill object for that month+year date.
     callhistory:
-         call history for this phone line, represented as a CallHistory object
+        call history for this phone line, represented as a CallHistory object
 
     === Representation Invariants ===
     - the <bills> dictionary contains as keys only those month+year combinations
@@ -67,7 +67,14 @@ class PhoneLine:
         month must be <started> by advancing to the right month from <call>.
         """
         # TODO: Implement this method
-        pass
+        call_time = (call.time.month, call.time.year)
+
+        if call_time not in self.bills:
+            self.bills[call_time] = Bill()
+            self.contract.new_month(call.time.month, call.time.year, self.bills[call_time])
+
+        self.callhistory.register_outgoing_call(call)
+        self.contract.bill_call(call)
 
     def receive_call(self, call: Call) -> None:
         """ Add the <call> to this phone line's callhistory.
@@ -77,7 +84,13 @@ class PhoneLine:
         <call>.
         """
         # TODO: Implement this method
-        pass
+        call_time = (call.time.month, call.time.year)
+
+        if call_time not in self.bills:
+            self.bills[call_time] = Bill()
+            self.contract.new_month(call.time.month, call.time.year, self.bills[call_time])
+
+        self.callhistory.register_incoming_call(call)
 
     def cancel_line(self) -> float:
         """ Cancel this line's contract and return the outstanding bill amount

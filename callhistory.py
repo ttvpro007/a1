@@ -19,11 +19,11 @@ class CallHistory:
 
     === Public Attributes ===
     incoming_calls:
-         Dictionary of incoming calls. Keys are tuples containing a month and a
-         year, values are a List of Call objects for that month and year.
+        Dictionary of incoming calls. Keys are tuples containing a month and a
+        year, values are a List of Call objects for that month and year.
     outgoing_calls:
-         Dictionary of outgoing calls. Keys are tuples containing a month and a
-         year, values are a List of Call objects for that month and year.
+        Dictionary of outgoing calls. Keys are tuples containing a month and a
+        year, values are a List of Call objects for that month and year.
     """
     incoming_calls: dict[tuple[int, int], list[Call]]
     outgoing_calls: dict[tuple[int, int], list[Call]]
@@ -34,17 +34,31 @@ class CallHistory:
         self.outgoing_calls = {}
         self.incoming_calls = {}
 
+    def __str__(self):
+        return f"Incoming Calls: {self.incoming_calls}\n\
+                Outgoing Calls: {self.outgoing_calls}"
+
     def register_outgoing_call(self, call: Call) -> None:
         """ Register a Call <call> into this outgoing call history
         """
         # TODO: Implement this method
-        pass
+        call_time = (call.time.month, call.time.year)
+
+        if call_time not in self.outgoing_calls:
+            self.outgoing_calls[call_time] = []
+
+        self.outgoing_calls[call_time].append(call)
 
     def register_incoming_call(self, call: Call) -> None:
         """ Register a Call <call> into this incoming call history
         """
         # TODO: Implement this method
-        pass
+        call_time = (call.time.month, call.time.year)
+
+        if call_time not in self.incoming_calls:
+            self.incoming_calls[call_time] = []
+
+        self.incoming_calls[call_time].append(call)
 
     # ----------------------------------------------------------
     # NOTE: You do not need to understand the implementation of

@@ -18,6 +18,8 @@ from contract import Contract
 from customer import Customer
 from phoneline import PhoneLine
 from visualizer import Visualizer
+from call import Call
+from helper import get_billing_date
 
 
 def import_data() -> dict[str, list[dict]]:
@@ -124,17 +126,55 @@ def process_event_history(log: dict[str, list[dict]],
     - The <customer_list> already contains all the customers from the <log>.
     """
     # TODO: Implement this method. We are giving you the first few lines of code
-    billing_date = datetime.datetime.strptime(log['events'][0]['time'],
-                                              "%Y-%m-%d %H:%M:%S")
-    # billing_month = billing_date.month
     # start recording the bills from this date
     # Note: uncomment the following lines when you're ready to implement this
     
-    new_month(customer_list, billing_date.month, billing_date.year)
-    
-    for event_data in log['events']:
-        print(event_data)
+    billing_date = get_billing_date(log['events'][0]['time'])
+    billing_month = billing_date.month
+    new_month(customer_list, billing_month, billing_date.year)
 
+    # Process each event in the log
+    for event_data in log['events']:
+        event_type = event_data['type']
+        billing_date = get_billing_date(event_data['time'])
+        new_billing_month = billing_date.month
+
+        # If a new month is detected, advance all customers
+        if billing_month != new_billing_month:
+            billing_month = new_billing_month
+            new_month(customer_list, billing_month, billing_date.year)
+
+        # Ignore SMS events as per specifications
+        if event_type == 'sms':
+            continue
+        
+        # Process call events
+        elif event_type == 'call':
+            # Constructing call object
+            call = Call(
+                src_nr=event_data['src_number'],
+                dst_nr=event_data['dst_number'],
+                calltime=billing_date,
+                duration=event_data['duration'],
+                src_loc=event_data['src_loc'],
+                dst_loc=event_data['dst_loc']
+            )
+
+            # Find the caller and receiver in the customer list
+            caller = find_customer_by_number(call.src_number, customer_list)
+            receiver = find_customer_by_number(call.dst_number, customer_list)
+
+            # Register the call in the appropriate customer's records
+            if caller:
+                caller.make_call(call)
+
+            if receiver:
+                receiver.receive_call(call)
+
+
+# ----------------------------------------------------------------------
+# Main
+# ----------------------------------------------------------------------
 
 if __name__ == '__main__':
     v = Visualizer()

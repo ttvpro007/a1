@@ -81,24 +81,24 @@ class Call:
 
     === Public Attributes ===
     src_number:
-         source number for this Call
+        source number for this Call
     dst_number:
-         destination number for this Call
+        destination number for this Call
     time:
-         date and time of this Call
+        date and time of this Call
     duration:
-         duration in seconds for this Call
+        duration in seconds for this Call
     src_loc:
-         location of the source of this Call; a Tuple containing the longitude
-         and latitude coordinates
+        location of the source of this Call; a Tuple containing the longitude
+        and latitude coordinates
     dst_loc:
-         location of the destination of this Call; a Tuple containing the
-         longitude and latitude coordinates
+        location of the destination of this Call; a Tuple containing the
+        longitude and latitude coordinates
     drawables:
-         sprites for drawing the source and destination of this Call
+        sprites for drawing the source and destination of this Call
     connection:
-         connecting line between the two sprites representing the source and
-         destination of this Call
+        connecting line between the two sprites representing the source and
+        destination of this Call
 
     === Representation Invariants ===
     -   duration >= 0
@@ -131,6 +131,7 @@ class Call:
 
         self.connection = Drawable(linelimits=(src_loc, dst_loc))
 
+
     def get_bill_date(self) -> tuple[int, int]:
         """ Return the billing date for this Call, as a tuple containing the
         month and the year
@@ -153,11 +154,20 @@ class Call:
         """
         return self.connection
     
+    # def __str__(self) -> str:
+    #     """ Return the string representation of a Call"""
+    #     return "srcnum" + self.src_number + "srcdst" + self.dst_number + "time"\
+    #         + str(self.time) + "dur" + str(self.duration) + "srcloc"\
+    #         + str(self.src_loc) + "dstloc" + str(self.dst_loc)
+
     def __str__(self) -> str:
         """ Return the string representation of a Call"""
-        return "srcnum" + self.src_number + "srcdst" + self.dst_number + "time"\
-            + str(self.time) + "dur" + str(self.duration) + "srcloc"\
-            + str(self.src_loc) + "dstloc" + str(self.dst_loc)
+        return "Call Details:\n" +\
+                f"Caller Number: {self.src_number} - Receiver Number: {self.dst_number}\n" +\
+                f"Time: {self.time}\n" +\
+                f"Duration: {self.duration}\n" +\
+                f"From Location: [lat:{self.src_loc[0]}, lon:{self.src_loc[1]}] - " +\
+                f"To Location: [lat:{self.dst_loc[0]}, lon:{self.dst_loc[1]}]"
 
 
 if __name__ == '__main__':
