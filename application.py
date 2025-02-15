@@ -14,7 +14,7 @@ Copyright (c) 2025 Bogdan Simion, Diane Horton, Jacqueline Smith
 import datetime
 import json
 
-from contract import Contract
+from contract import MTMContract, PrepaidContract, TermContract
 from customer import Customer
 from phoneline import PhoneLine
 from visualizer import Visualizer
@@ -46,24 +46,10 @@ def create_customers(log: dict[str, list[dict]]) -> list[Customer]:
     for cust in log['customers']:
         customer = Customer(cust['id'])
         for line in cust['lines']:
-            # TODO:
-            # comment out the following three lines of code only when you get
-            # to implement task 3. These lines are provided as a placeholder so
-            # that your visualization works when you have only completed up to
-            # and including task 2. Never instantiate the abstract class
-            # "Contract" as below.
-            # Remove this TODO list when you're done.
-            contract = Contract(datetime.datetime.now())
-            contract.new_month = lambda *args: None
-            contract.bill_call = lambda *args: None
-            # TODO:
-            # 1) Uncomment the piece of code below once you've implemented
-            #    all types of contracts.
-            # 2) Make sure to import the necessary contract classes in this file
-            #    and remove any unused imports to pass PyTA.
-            # 3) Do not change anything in the code below besides uncommenting it
-            # 4) Remove this TODO list when you're done.
-            """
+            # contract = Contract(datetime.datetime.now())
+            # contract.new_month = lambda *args: None
+            # contract.bill_call = lambda *args: None
+            
             contract = None
             if line['contract'] == 'prepaid':
                 # start with $100 credit on the account
@@ -75,7 +61,6 @@ def create_customers(log: dict[str, list[dict]]) -> list[Customer]:
                                         datetime.date(2019, 6, 25))
             else:
                 print("ERROR: unknown contract type")
-            """
 
             line = PhoneLine(line['number'], contract)
             customer.add_phone_line(line)

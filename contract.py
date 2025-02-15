@@ -34,6 +34,8 @@ TERM_MINS_COST = 0.1
 
 # Cost per minute and per SMS in the prepaid contract
 PREPAID_MINS_COST = 0.025
+PREPAID_MIN_TOPUP_AMOUNT = 25
+PREPAID_MIN_CREDIT_ALLOWED = 10
 
 
 class Contract:
@@ -52,12 +54,14 @@ class Contract:
     """
     start: datetime.date
     bill: Optional[Bill]
+    current_billing_date: datetime.date
 
     def __init__(self, start: datetime.date) -> None:
         """ Create a new Contract with the <start> date, starts as inactive
         """
         self.start = start
         self.bill = None
+        self.current_billing_date = None
 
     def new_month(self, month: int, year: int, bill: Bill) -> None:
         """ Advance to a new month in the contract, corresponding to <month> and
@@ -108,13 +112,77 @@ class TermContract(Contract):
         Store the <bill> argument in this contract and set the appropriate rate
         per minute and fixed cost.
         """
+        self.current_billing_date = datetime.date(year, month, 1)
+
         self.bill = bill
         self.bill.add_free_minutes(TERM_MINS)
-        self.bill.set_rates("term", TERM_MINS_COST)
         self.bill.add_fixed_cost(TERM_MONTHLY_FEE)
+        self.bill.set_rates('TERM', TERM_MINS_COST)
 
+        # if is first month, add term deposit cost
         if self.start.year == year and self.start.month == month:
             self.bill.add_fixed_cost(TERM_DEPOSIT)
+    
+    def cancel_contract(self) -> float:
+        """ Return the amount owed in order to close the phone line associated
+        with this contract.
+
+        Precondition:
+        - a bill has already been created for the month+year when this contract
+        is being cancelled. In other words, you can safely assume that self.bill
+        exists for the right month+year when the cancelation is requested.
+        """
+        if self.current_billing_date < self.end:
+            return super().cancel_contract()
+        else:
+            return super().cancel_contract() - TERM_DEPOSIT
+
+
+class MTMContract(Contract):
+
+    def __init__(self, start: datetime.date):
+        super().__init__(start)
+
+    def new_month(self, month: int, year: int, bill: Bill) -> None:
+        """ Advance to a new month in the contract, corresponding to <month> and
+        <year>. This may be the first month of the contract.
+        Store the <bill> argument in this contract and set the appropriate rate
+        per minute and fixed cost.
+        """
+        self.current_billing_date = datetime.date(year, month, 1)
+
+        self.bill = bill
+        self.bill.add_fixed_cost(MTM_MONTHLY_FEE)
+        self.bill.set_rates('MTM', MTM_MINS_COST)
+
+
+class PrepaidContract(Contract):
+    balance: float
+
+    def __init__(self, start: datetime.date, balance: float):
+        super().__init__(start)
+        self.balance = -balance
+
+    def new_month(self, month: int, year: int, bill: Bill) -> None:
+        """ Advance to a new month in the contract, corresponding to <month> and
+        <year>. This may be the first month of the contract.
+        Store the <bill> argument in this contract and set the appropriate rate
+        per minute and fixed cost.
+        """
+        self.current_billing_date = datetime.date(year, month, 1)
+
+        # if there is the previous month bill
+        if self.bill:
+            # charge the balance of previous month's bill cost
+            self.balance += self.bill.get_cost()
+
+            # if balance is less than minimum credit allowed ($10)
+            # add the minimum topup amount ($25)
+            if -self.balance < PREPAID_MIN_CREDIT_ALLOWED:
+                self.balance += -PREPAID_MIN_TOPUP_AMOUNT
+
+        self.bill = bill
+        self.bill.set_rates('PREPAID', PREPAID_MINS_COST)
 
     def cancel_contract(self) -> float:
         """ Return the amount owed in order to close the phone line associated
@@ -125,10 +193,16 @@ class TermContract(Contract):
         is being cancelled. In other words, you can safely assume that self.bill
         exists for the right month+year when the cancelation is requested.
         """
-        # TODO: Implement the function
+        # add the bill cost
+        self.balance += self.bill.get_cost()
 
-        self.start = None
-        return self.bill.get_cost()
+        # check balance
+        if -self.balance >= 0:
+            # forfeit any left over balance
+            return 0
+        else:
+            # notify owed amount
+            return self.balance
 
 if __name__ == '__main__':
     import python_ta
